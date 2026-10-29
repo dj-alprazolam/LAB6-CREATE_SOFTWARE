@@ -80,7 +80,7 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            artifacts/lab4-ubuntu-latest/LAB6
-            artifacts/lab4-windows-latest/LAB6.exe
+            artifacts/lab6-ubuntu-latest/LAB6
+            artifacts/lab6-windows-latest/LAB6.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
