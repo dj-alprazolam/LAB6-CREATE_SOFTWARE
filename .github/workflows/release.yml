@@ -51,8 +51,9 @@ jobs:
           path: |
             build/LAB6
             build/Release/LAB6.exe
+            build/Debug/LAB6.exe
             build/LAB6.exe
-          if-no-files-found: error
+          if-no-files-found: warn
 
   release:
     name: Create Release
