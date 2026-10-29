@@ -1,0 +1,86 @@
+name: 'C++ CI/CD'
+
+on:
+  push:
+    branches:
+      - main
+      - feature/github_actions
+
+permissions: write-all
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  
+        with:
+          submodules: true
+
+      - name: Install dependencies (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+        shell: bash
+
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DPATCH_VERSION=${{ github.run_number }}
+        shell: bash
+
+      - name: Build
+        run: cmake --build build --config Release
+        shell: bash
+
+      - name: List build artifacts (debug)
+        run: |
+          echo "=== Build directory structure ==="
+          find build -type f -name "LAB6*" || echo "LAB6 not found"
+          find build -type f -name "*.exe" || echo "No .exe files"
+        shell: bash
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4  
+        with:
+          name: lab6-${{ matrix.os }}
+          path: |
+            build/LAB6
+            build/Release/LAB6.exe
+            build/LAB6.exe
+          if-no-files-found: error
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4  
+        with:
+          path: artifacts
+
+      - name: List downloaded files (debug)
+        run: |
+          echo "=== Downloaded artifacts ==="
+          ls -la artifacts/
+          find artifacts -type f
+        shell: bash
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2  
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Release v1.0.${{ github.run_number }}
+          draft: false
+          prerelease: false
+          files: |
+            artifacts/lab4-ubuntu-latest/LAB6
+            artifacts/lab4-windows-latest/LAB6.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
