@@ -6,7 +6,8 @@ on:
       - main
       - feature/github_actions
 
-permissions: write-all
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -18,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4  
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -26,7 +27,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential
+          sudo apt-get install -y build-essential cmake
         shell: bash
 
       - name: Configure CMake
@@ -37,23 +38,50 @@ jobs:
         run: cmake --build build --config Release
         shell: bash
 
-      - name: List build artifacts (debug)
+      # --- Linux: запускаем и загружаем ---
+      - name: Run on Ubuntu
+        if: runner.os == 'Linux'
         run: |
-          echo "=== Build directory structure ==="
-          find build -type f -name "LAB6*" || echo "LAB6 not found"
-          find build -type f -name "*.exe" || echo "No .exe files"
+          chmod +x build/LAB6
+          ./build/LAB6
         shell: bash
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4  
+      - name: Upload artifact (Ubuntu)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
         with:
-          name: lab6-${{ matrix.os }}
-          path: |
-            build/LAB6
-            build/Release/LAB6.exe
-            build/Debug/LAB6.exe
-            build/LAB6.exe
-          if-no-files-found: warn
+          name: lab6-ubuntu-latest
+          path: build/LAB6
+          if-no-files-found: error
+
+      # --- Windows: ищем .exe, копируем в известное место, запускаем ---
+      - name: Find and prepare executable (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          $exe = Get-ChildItem -Recurse -Path build -Filter "LAB6.exe" | Select-Object -First 1
+          if ($exe) {
+            Copy-Item $exe.FullName -Destination "build/LAB6.exe" -Force
+            Write-Host "Found: $($exe.FullName)"
+            Write-Host "Copied to: build/LAB6.exe"
+          } else {
+            Write-Host "ERROR: LAB6.exe not found in build directory!"
+            Get-ChildItem -Recurse build | Select-Object FullName
+            exit 1
+          }
+        shell: pwsh
+
+      - name: Run on Windows
+        if: runner.os == 'Windows'
+        run: .\build\LAB6.exe
+        shell: pwsh
+
+      - name: Upload artifact (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab6-windows-latest
+          path: build/LAB6.exe
+          if-no-files-found: error
 
   release:
     name: Create Release
@@ -62,19 +90,18 @@ jobs:
 
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4  
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
-      - name: List downloaded files (debug)
+      - name: List downloaded files
         run: |
           echo "=== Downloaded artifacts ==="
-          ls -la artifacts/
           find artifacts -type f
         shell: bash
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2  
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
           name: Release v1.0.${{ github.run_number }}
