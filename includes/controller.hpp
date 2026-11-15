@@ -29,7 +29,7 @@ public:
         }
     }
 
-    void deletePrimitiv(std::unique_ptr<primitiv> Primitiv){
+    void deletePrimitiv(){
         if(Document_){
             Document_->deletprimitive();
             fmt::print("Объект удален!\n");

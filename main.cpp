@@ -23,11 +23,15 @@ void buttonExportDoc(const std::string& name){
     app->exportDoc(name);
 }
 
+void deleteP(){
+    app->deletePrimitiv();
+}
 int main(int, char**){
     app = std::make_unique<controller>(std::make_unique<viev>());
     buttonCreateDoc(1);
     buttonAddCircle();
     buttonAddSquare();
+    deleteP();
     buttonExportDoc("First_project");
 
     return 0;
