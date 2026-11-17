@@ -4,7 +4,7 @@
 #include"includes/primitiv.hpp"
 #include"includes/document.hpp"
 #include"includes/controller.hpp"
-#include"includes/Viev.hpp"
+#include"includes/View.hpp"
 #include<memory>
 std::unique_ptr<controller> app;
 void buttonCreateDoc(int a){
@@ -27,7 +27,7 @@ void deleteP(){
     app->deletePrimitiv();
 }
 int main(int, char**){
-    app = std::make_unique<controller>(std::make_unique<viev>());
+    app = std::make_unique<controller>(std::make_unique<consolViwe>());
     buttonCreateDoc(1);
     buttonAddCircle();
     buttonAddSquare();

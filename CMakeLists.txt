@@ -12,6 +12,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fmt)
 
-add_executable(LAB6 main.cpp )
+add_executable(LAB6 main.cpp
+    src/View.cpp
+    src/document.cpp
+    src/controller.cpp
+    src/circle.cpp
+    src/square.cpp)
 target_include_directories(LAB6 PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(LAB6 PRIVATE fmt::fmt)

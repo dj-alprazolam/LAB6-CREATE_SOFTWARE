@@ -6,15 +6,8 @@
 class square : public primitiv
 {
 public:
-    std::string getName() const override{
-        return "Квардрат";
-    }
-
-    void draw() const override{
-        fmt::print("Отрисовка квадрата\n");
-    }
-
-
+    std::string getName() const override;
+    void draw() const override;
 };
 
 

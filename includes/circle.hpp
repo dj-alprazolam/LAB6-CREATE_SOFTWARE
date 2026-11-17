@@ -5,13 +5,8 @@
 class circle : public primitiv
 {
 public:
-    std::string getName() const override{
-        return"Круг";
-    }
-
-    void draw() const override{
-        fmt::print("Отрисовка круга\n");
-    }
+    std::string getName() const override;
+    void draw() const override;
 
 };
 
